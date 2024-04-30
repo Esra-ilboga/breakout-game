@@ -12,4 +12,6 @@ Bİr blok kırıldığında bu skora Skor:1 şeklinde yansır haliyle bloklar k�
 # OYUN GÖRÜNTÜLERİ
 - Oyunun nasıl göründüğünü görmek isterseniz oyun.1.png ve oyun.2.png'den görüntülere erişebilirsiniz.
 Oyunun youtube videosuna erişmek isterseniz link aşağıda.
--https: //youtu.be/Oc9GjUegMJQ 
+- [https://youtu.be/GDajsJwcXcI?si=RG-mzbVljNUkMCy6](https://youtu.be/Oc9GjUegMJQ?feature=shared)
+
+
