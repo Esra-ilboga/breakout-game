@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Full Page Canvas</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            height: 100%; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-family: Arial, sans-serif;
+            background-color: #000000; 
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" style="height: 100%; width: 520px; background-color: #000000;"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const bloksatirsayisi = 4;
+        const bloksutunsayisi = 5;
+        //yukarda kırılacak blokların özelliklerini verir
+        const bloklr = {genislik: 50, yukseklik: 7, bosluk: 2, ustbosluk: 20, solbosluk: 5, visible: true, matrix: []}; 
+        //top özellikleri tanımlandı
+        const topum = {x: canvas.width / 2, y: canvas.height - 50, cap: 8, dx: 2, dy: -2, hiz: 1, renk: '#540025'}; 
+        //alt tarafta topun üstüne düşeceği bloğu temsil eder ve bu bloğun özellikleri verilmiştir
+        const DestekBlok = {x: canvas.width / 2 - 35, y: canvas.height - 20, genislik: 90, yukseklik: 6, hiz: 5, dx: 0}; 
+
+        // Blokları inşa ediyoruz
+        for (let i = 0; i < bloksatirsayisi; i++) {
+            bloklr.matrix[i] = [];
+            for (let j = 0; j < bloksutunsayisi; j++) {
+                const x = bloklr.solbosluk + j * (bloklr.genislik + bloklr.bosluk); // X konumu
+                const y = bloklr.ustbosluk + i * (bloklr.yukseklik + bloklr.bosluk); // Y konumu
+                bloklr.matrix[i][j] = { x, y, visible: true, genislik: bloklr.genislik, yukseklik: bloklr.yukseklik };
+            }
+        }
+        //bu fonksiyon topu canvas ortamına çizmemizi sağlar
+        function topciz() {
+            ctx.beginPath(); // Çizim yolu başlat
+            ctx.arc(topum.x, topum.y, topum.cap, 0, Math.PI * 2); // Çember çiz
+            ctx.fillStyle = topum.renk; 
+            ctx.fill(); 
+            ctx.closePath(); 
+        }
+        //bu fonksiyon altta bulunan topun üstüne düşeceği bloğu canvas ortamına çizmemizi sağlar
+        function destekblokciz() {
+            ctx.fillStyle = '#aa5b00'; 
+            ctx.beginPath(); 
+            ctx.rect(DestekBlok.x, DestekBlok.y, DestekBlok.genislik, DestekBlok.yukseklik);//dikdörtgen çizmemizi sağlar
+            ctx.fill(); 
+            ctx.closePath(); 
+        }
+
+        let skor = 0;
+        //bu fonksiyon skoru canvas ortamına çizmemizi sağlar
+        function skorciz() {
+            ctx.font = '10px Arial'; // Skor fontu
+            ctx.fillStyle = '#eab2ca'; 
+            const scoreText = `Skorunuz: ${skor}`; 
+            const textWidth = ctx.measureText(scoreText).width;//metin genişliğini ölçer
+            const xPosition = canvas.width - textWidth - 10; 
+            const yPosition = 15; 
+            ctx.fillText(scoreText, xPosition, yPosition);//metni çizer
+        }
+        //bu fonksiyon kırılacak blokları canvas ortamına çizmemizi sağlar
+        function bloklarciz() {
+            bloklr.matrix.forEach((sutun) => {
+                sutun.forEach((blok) => {
+                    if (blok.visible) { 
+                        ctx.beginPath(); 
+                        ctx.rect(blok.x, blok.y, blok.genislik, blok.yukseklik);//dikdörtgen çizmemizi sağlar
+                        ctx.fillStyle = '#7f3d6a'; 
+                        ctx.fill(); 
+                        ctx.closePath(); 
+                    }
+                });
+            });
+        }
+        // bu fonksiyon topu yönlendiren kod bloğunun hareketlerini barındırır
+        function destekblokhrkt() {
+            DestekBlok.x += DestekBlok.dx; // Paddle hareketi
+            //destek bloğun sağ sınırdan çıkıp çıkmadığını kontrol etmek ve sağ sınırda tutmak için yazıldı
+            if (DestekBlok.x + DestekBlok.genislik > canvas.width) {
+                DestekBlok.x = canvas.width - DestekBlok.genislik; 
+            }
+            //bu da sol sınır kontrolü ve sol sınırda tutmaya yarar
+            if (DestekBlok.x < 0) {
+                DestekBlok.x = 0; 
+            }
+        }
+
+        function tophareket() {
+            topum.x += topum.dx; // Topun yatay hareketi
+            topum.y += topum.dy; // Topun dikey hareketi
+            
+            if (topum.x + topum.cap > canvas.width) {
+                topum.dx *= -1; // Sağ duvar çarpışması
+            }
+            if (topum.x - topum.cap < 0) {
+                topum.dx *= -1; // Sol duvar çarpışması
+            }
+            if (topum.y - topum.cap < 0) {
+                topum.dy *= -1; // Üst duvar çarpışması
+            }
+            /* bir top belirli bir yüksekliği aştığında, oyun içindeki belirli blokları 
+            görünür hale getirip skoru sıfırlayarak oyun kaybını tetikler. */
+            if (topum.y + topum.cap > canvas.height) {
+                bloklr.matrix.forEach((sutun) => {
+                sutun.forEach((blok) => {
+                    blok.visible = true; 
+                });
+            }); 
+                skor = 0; // Oyun kaybı
+            }
+            //topun destek bloğuna çarpma durumu değerlendirilir,destek bloğuna çarptığında dikey hızını ters çevirir
+            if (topum.y + topum.cap >= DestekBlok.y && 
+                topum.x >= DestekBlok.x && 
+                topum.x <= DestekBlok.x + DestekBlok.genislik) {
+                topum.dy *= -1; 
+            }
+            //top görünür bir blokla çarpışırsa, topun dikey hızını ters çevirir, blokun görünürlüğünü kapatır ve skoru artırır.
+            bloklr.matrix.forEach((sutun) => {
+                sutun.forEach((blok) => {
+                    if (blok.visible) { 
+                        const withinX = topum.x >= blok.x && topum.x <= blok.x + blok.genislik; 
+                        const withinY = topum.y >= blok.y && topum.y <= blok.y + blok.yukseklik; 
+                        if (withinX && withinY) { 
+                            topum.dy *= -1; 
+                            blok.visible = false; 
+                            skor++; 
+                        }
+                    }
+                });
+            });
+        }
+        //önce canvası temizler sonra çağırılan fonksiyonlarla cizimleri yapar
+        function cizimm() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+            topciz(); 
+            destekblokciz(); 
+            skorciz(); 
+            bloklarciz(); 
+        }
+        //canvas çizimini ve animasyonu günceller
+        function guncelle() {
+            destekblokhrkt(); 
+            tophareket(); 
+            cizimm(); 
+            requestAnimationFrame(guncelle);// guncelle adlı fonksiyonun tarayıcı tarafından uygun bir zamanda çalıştırılmasını sağlar.
+        }
+
+        guncelle(); // Animasyon döngüsünü başlat
+        //// Kullanıcı bir tuşa bastığında çağrılır
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight') { // Sağ ok tuşuna basıldıysa
+                DestekBlok.dx = DestekBlok.hiz;// DestekBlok'un yatay hızını sağa doğru ayarlar 
+            } else if (event.key === 'ArrowLeft') {// Sol ok tuşuna basıldıysa
+                DestekBlok.dx = -DestekBlok.hiz;// DestekBlok'un yatay hızını sola doğru ayarlar 
+            }
+        });
+        // Kullanıcı bir tuşu bıraktığında çağrılır
+        document.addEventListener('keyup', (event) => {
+            if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {// Sağ veya sol ok tuşlarından biri serbest bırakıldığında
+                DestekBlok.dx = 0; // destekblok durur
+            }
+        });
+
+    </script>
+</body>
+</html>
