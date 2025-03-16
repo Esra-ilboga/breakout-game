@@ -19,8 +19,9 @@ Blok Kırma Oyunu (veya Breakout), basit ama eğlenceli bir oyun deneyimi sunar.
 
 Oyunun nasıl göründüğünü görmek için aşağıdaki görsellere göz atabilirsiniz:
 
-![Oyun Görüntüsü 1](oyun.1.png)
-![Oyun Görüntüsü 2](oyun.2.png)
+| Oyun Görüntüsü 1 | Oyun Görüntüsü 2 |
+| ---------------- | ---------------- |
+| ![Oyun Görüntüsü 1](oyun.1.png) | ![Oyun Görüntüsü 2](oyun.2.png) |
 
 Ayrıca, oyunun tanıtım videosuna aşağıdaki bağlantıdan erişebilirsiniz:
 
